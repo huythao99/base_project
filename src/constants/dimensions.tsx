@@ -1,6 +1,6 @@
 import {Dimensions, Platform, PixelRatio} from 'react-native';
-export const WIDTH = Dimensions.get('window').width;
-export const HEIGHT = Dimensions.get('window').height;
+export const WIDTH = Dimensions.get('screen').width;
+export const HEIGHT = Dimensions.get('screen').height;
 
 const WIDTH_FIGMA = 400;
 const HEIGHT_FIGMA = 700;

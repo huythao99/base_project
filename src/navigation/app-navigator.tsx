@@ -3,16 +3,20 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import * as React from 'react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {AuthNavigator} from './auth-navigator';
+import RNBootSplash from 'react-native-bootsplash';
 
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
+      <NavigationContainer
+        onReady={() => {
+          RNBootSplash.hide({fade: true, duration: 500});
+        }}>
         <Stack.Navigator>
           <Stack.Screen
-            options={{headerShown: false}}
+            options={{headerShown: false, gestureEnabled: false}}
             name="Auth"
             component={AuthNavigator}
           />
