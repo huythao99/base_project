@@ -1,88 +1,31 @@
 import * as React from 'react';
-import {View} from 'react-native';
+import {FlatList, Image, Text, View} from 'react-native';
+import Animated from 'react-native-reanimated';
 import useHome from './home-hooks';
 import styles from './styles';
-import Video, {OnLoadData, OnProgressData} from 'react-native-video';
-import {WIDTH} from '../../constants/dimensions';
+
+const FlatListAnimated = Animated.createAnimatedComponent(FlatList);
+const ImageAnimated = Animated.createAnimatedComponent(Image);
 
 export default function HomeScreen() {
-  const {
-    refVideo,
-    isPlay,
-    uriVideoOne,
-    uriVideoTwo,
-    refVideoSecond,
-    keyOne,
-    keyTwo,
-    isPlaySecondVideo,
-    onChangeDurationSecond,
-    onChangeDuration,
-    onInitMaxDuration,
-    onEndVideoOne,
-    onEndVideoTwo,
-    onInitMaxDurationSecond,
-  } = useHome();
+  const {URL, ARRAY, styleImage, onScroll} = useHome();
 
   return (
     <View style={styles.container}>
-      <View style={styles.backgroundVideo}>
-        <Video
-          key={`${keyOne}-first`}
-          ref={refVideo}
-          repeat={false}
-          resizeMode={'cover'}
-          source={{
-            uri: uriVideoOne,
-          }} // Can be a URL or a local file.
-          style={[
-            styles.backgroundVideo,
-            {
-              transform: [
-                {
-                  translateX: isPlay ? 0 : -WIDTH,
-                },
-              ],
-            },
-          ]}
-          onLoad={(e: OnLoadData) => {
-            onInitMaxDuration(e.duration);
-          }}
-          onProgress={(e: OnProgressData) => {
-            onChangeDuration(e.currentTime);
-          }}
-          onEnd={onEndVideoOne}
-          paused={!isPlay}
-          controls={true}
-        />
-        <Video
-          key={`${keyTwo}-second`}
-          ref={refVideoSecond}
-          repeat={false}
-          resizeMode={'cover'}
-          source={{
-            uri: uriVideoTwo,
-          }} // Can be a URL or a local file.
-          style={[
-            styles.backgroundVideo,
-            {
-              transform: [
-                {
-                  translateX: isPlaySecondVideo ? 0 : -WIDTH,
-                },
-              ],
-            },
-          ]}
-          onEnd={onEndVideoTwo}
-          onLoad={(e: OnLoadData) => {
-            onInitMaxDurationSecond(e.duration);
-          }}
-          onProgress={(e: OnProgressData) => {
-            onChangeDurationSecond(e.currentTime);
-          }}
-          paused={!isPlaySecondVideo}
-          controls={true}
-        />
-      </View>
+      <FlatListAnimated
+        onScroll={onScroll}
+        data={ARRAY}
+        keyExtractor={(_, index) => index.toString()}
+        renderItem={({item}) => {
+          return (
+            <View style={styles.itemContainer}>
+              <Text style={styles.itemContent}>{item.value}</Text>
+            </View>
+          );
+        }}
+        ListHeaderComponent={<View style={styles.blank} />}
+      />
+      <ImageAnimated source={{uri: URL}} style={[styles.image, styleImage]} />
     </View>
   );
 }
