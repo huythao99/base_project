@@ -1,98 +1,88 @@
 import * as React from 'react';
-import {StatusBar, Text, TouchableOpacity, View} from 'react-native';
-import {Gesture, GestureDetector} from 'react-native-gesture-handler';
-import Animated from 'react-native-reanimated';
+import {View} from 'react-native';
 import useHome from './home-hooks';
 import styles from './styles';
 import Video, {OnLoadData, OnProgressData} from 'react-native-video';
-import {ReText} from 'react-native-redash';
+import {WIDTH} from '../../constants/dimensions';
 
 export default function HomeScreen() {
   const {
     refVideo,
-    textDuration,
-    styleCircle,
-    styleConfig,
-    styleRedLine,
-    onPanGestureEvent,
-    onSingleTap,
-    onDoubleTap,
     isPlay,
-    landScapeMode,
-    styleLine,
-    onRotate,
+    uriVideoOne,
+    uriVideoTwo,
+    refVideoSecond,
+    keyOne,
+    keyTwo,
+    isPlaySecondVideo,
+    onChangeDurationSecond,
     onChangeDuration,
     onInitMaxDuration,
-    onNextDuration,
-    onPrevDuration,
-    onChangeLayout,
+    onEndVideoOne,
+    onEndVideoTwo,
+    onInitMaxDurationSecond,
   } = useHome();
 
   return (
     <View style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent" />
-
-      <GestureDetector gesture={Gesture.Exclusive(onDoubleTap, onSingleTap)}>
-        <Animated.View
-          onLayout={onChangeLayout}
-          style={
-            landScapeMode
-              ? styles.backgroundVideoLandScape
-              : styles.backgroundVideo
-          }>
-          <Video
-            ref={refVideo}
-            repeat={true}
-            resizeMode={'cover'}
-            source={{
-              uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-            }} // Can be a URL or a local file.
-            style={
-              landScapeMode
-                ? styles.backgroundVideoLandScape
-                : styles.backgroundVideo
-            }
-            onLoad={(e: OnLoadData) => {
-              onInitMaxDuration(e.duration);
-            }}
-            onProgress={(e: OnProgressData) => {
-              onChangeDuration(e.currentTime);
-            }}
-            paused={!isPlay}
-          />
-          <Animated.View style={[styles.config, styleConfig]}>
-            <Animated.View style={styles.configRow}>
-              <TouchableOpacity style={styles.btn} onPress={onPrevDuration}>
-                <Text style={styles.textBtn}>Prev</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.btn}>
-                <Text style={styles.textBtn}>Play</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.btn} onPress={onNextDuration}>
-                <Text style={styles.textBtn}>Next</Text>
-              </TouchableOpacity>
-            </Animated.View>
-            <Animated.View style={[styles.configBottom, styleLine]}>
-              <Animated.View style={[styles.line, styleLine]}>
-                <Animated.View style={[styles.redLine, styleRedLine]} />
-                <GestureDetector gesture={onPanGestureEvent}>
-                  <Animated.View
-                    hitSlop={{left: 30, right: 30, top: 30, bottom: 30}}
-                    style={[styles.circleOut, styleCircle]}>
-                    <Animated.View style={[styles.circle]} />
-                  </Animated.View>
-                </GestureDetector>
-              </Animated.View>
-              <View style={styles.bottomConfigRow}>
-                <ReText text={textDuration} style={styles.duration} />
-                <TouchableOpacity onPress={onRotate}>
-                  <Text style={styles.textBtn}>Xoay</Text>
-                </TouchableOpacity>
-              </View>
-            </Animated.View>
-          </Animated.View>
-        </Animated.View>
-      </GestureDetector>
+      <View style={styles.backgroundVideo}>
+        <Video
+          key={`${keyOne}-first`}
+          ref={refVideo}
+          repeat={false}
+          resizeMode={'cover'}
+          source={{
+            uri: uriVideoOne,
+          }} // Can be a URL or a local file.
+          style={[
+            styles.backgroundVideo,
+            {
+              transform: [
+                {
+                  translateX: isPlay ? 0 : -WIDTH,
+                },
+              ],
+            },
+          ]}
+          onLoad={(e: OnLoadData) => {
+            onInitMaxDuration(e.duration);
+          }}
+          onProgress={(e: OnProgressData) => {
+            onChangeDuration(e.currentTime);
+          }}
+          onEnd={onEndVideoOne}
+          paused={!isPlay}
+          controls={true}
+        />
+        <Video
+          key={`${keyTwo}-second`}
+          ref={refVideoSecond}
+          repeat={false}
+          resizeMode={'cover'}
+          source={{
+            uri: uriVideoTwo,
+          }} // Can be a URL or a local file.
+          style={[
+            styles.backgroundVideo,
+            {
+              transform: [
+                {
+                  translateX: isPlaySecondVideo ? 0 : -WIDTH,
+                },
+              ],
+            },
+          ]}
+          onEnd={onEndVideoTwo}
+          onLoad={(e: OnLoadData) => {
+            onInitMaxDurationSecond(e.duration);
+          }}
+          onProgress={(e: OnProgressData) => {
+            onChangeDurationSecond(e.currentTime);
+          }}
+          paused={!isPlaySecondVideo}
+          controls={true}
+        />
+      </View>
     </View>
   );
 }

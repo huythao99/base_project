@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
   backgroundVideo: {
     width: WIDTH,
     height: (WIDTH * 3) / 4,
+    position: 'absolute',
   },
   backgroundVideoLandScape: {
     height: WIDTH,
