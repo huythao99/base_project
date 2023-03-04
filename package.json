@@ -12,6 +12,7 @@
   "dependencies": {
     "@react-navigation/native": "^6.1.2",
     "@react-navigation/native-stack": "^6.9.8",
+    "@shopify/react-native-skia": "^0.1.176",
     "react": "18.2.0",
     "react-native": "0.71.1",
     "react-native-bootsplash": "^4.5.0",

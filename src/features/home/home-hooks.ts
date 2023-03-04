@@ -1,87 +1,52 @@
-import {useEffect} from 'react';
-import {BackHandler} from 'react-native';
 import {
-  Extrapolation,
+  useClockValue,
+  useComputedValue,
+  useValue,
+  useValueEffect,
   interpolate,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useDerivedValue,
-  useSharedValue,
-} from 'react-native-reanimated';
-
-export type ItemTypes = {
-  id: string;
-  value: number;
-};
-
-const URL =
-  'https://images.unsplash.com/photo-1474511320723-9a56873867b5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8YW5pbWFsfGVufDB8fDB8fA%3D%3D&w=1000&q=80';
-
-const ARRAY = new Array(250).fill(0).map((_, index) => {
-  return {
-    id: `${index}`,
-    value: index + 1,
-  };
-});
+  Extrapolate,
+} from '@shopify/react-native-skia';
+import {Dimensions} from 'react-native';
+const WIDTH = Dimensions.get('window').width;
+const HEIGHT = Dimensions.get('window').height;
 
 export default function useHome() {
-  const scrollY = useSharedValue(0);
-  const currentScrollY = useSharedValue(0);
-  const velocity = useSharedValue(0);
-  const distance = useDerivedValue(() => {
-    return Math.max(0, scrollY.value - currentScrollY.value);
-  });
+  const center = {x: WIDTH / 2, y: HEIGHT / 2};
 
-  const onScroll = useAnimatedScrollHandler({
-    onMomentumBegin: event => {
-      velocity.value = event.velocity?.y || 0;
-      if (event.velocity?.y > 0) {
-        if (distance.value > 0) {
-          currentScrollY.value = scrollY.value - 100;
-        }
-      } else {
-        if (distance.value === 0) {
-          currentScrollY.value = event.contentOffset.y;
-        }
-      }
-    },
-    onScroll: event => {
-      scrollY.value = event.contentOffset.y;
-    },
-  });
+  const clock = useClockValue();
+  const rotation = useValue(0);
+  const logo = useValue(0);
 
-  const styleImage = useAnimatedStyle(() => {
-    return {
-      transform: [
-        {
-          translateY: interpolate(
-            distance.value,
-            [0, 100],
-            [0, -150],
-            Extrapolation.CLAMP,
-          ),
-        },
-      ],
-    };
-  }, []);
+  const rotationTransform = useComputedValue(() => {
+    return [{rotate: rotation.current}, {scale: -1}];
+  }, [rotation]);
 
-  useEffect(() => {
-    const backAction = () => {
-      return true;
-    };
+  const rotationTransformSecond = useComputedValue(() => {
+    return [{rotate: -rotation.current}, {scale: -1}];
+  }, [rotation]);
 
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
+  const rotationTransformLogo = useComputedValue(() => {
+    return [{rotate: logo.current}];
+  }, [logo]);
+
+  useValueEffect(clock, () => {
+    rotation.current = interpolate(
+      clock.current,
+      [0, 1000],
+      [0, Math.PI / 3],
+      Extrapolate.CLAMP,
     );
-
-    return () => backHandler.remove();
-  }, []);
+    logo.current = interpolate(
+      clock.current,
+      [0, 1000, 2500],
+      [0, 0, Math.PI / 2],
+    );
+  });
 
   return {
-    URL,
-    ARRAY,
-    styleImage,
-    onScroll,
+    center,
+    rotationTransform,
+    rotationTransformSecond,
+    rotationTransformLogo,
   };
 }

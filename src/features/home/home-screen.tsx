@@ -1,30 +1,46 @@
+import {
+  Canvas,
+  Circle,
+  Oval,
+  Group,
+  SweepGradient,
+  vec,
+} from '@shopify/react-native-skia';
 import * as React from 'react';
-import {FlatList, Image, Text, View} from 'react-native';
-import Animated from 'react-native-reanimated';
+import {BLUE_50, BLUE_A200, BLUE_A400} from '../../constants/colors';
 import useHome from './home-hooks';
 import styles from './styles';
 
-const FlatListAnimated = Animated.createAnimatedComponent(FlatList);
-const ImageAnimated = Animated.createAnimatedComponent(Image);
-
 export default function HomeScreen() {
-  const {URL, ARRAY, styleImage, onScroll} = useHome();
+  const {
+    center,
+    rotationTransform,
+    rotationTransformSecond,
+    rotationTransformLogo,
+  } = useHome();
 
   return (
-    <View style={styles.container}>
-      <FlatListAnimated
-        onScroll={onScroll}
-        data={ARRAY}
-        renderItem={({item}) => {
-          return (
-            <View style={styles.itemContainer}>
-              <Text style={styles.itemContent}>{item.value}</Text>
-            </View>
-          );
-        }}
-        ListHeaderComponent={<View style={styles.blank} />}
-      />
-      <ImageAnimated style={[styles.image, styleImage]} source={{uri: URL}} />
-    </View>
+    <Canvas style={styles.container}>
+      <Circle cx={center.x} cy={center.y} r={15} color="lightblue">
+        <SweepGradient c={vec(center.x, center.y)} colors={[BLUE_A200]} />
+      </Circle>
+      <Group
+        style={'stroke'}
+        strokeWidth={10}
+        transform={rotationTransformLogo}
+        origin={center}>
+        <SweepGradient
+          c={vec(center.x, center.y)}
+          colors={[BLUE_50, BLUE_A200, BLUE_A400]}
+        />
+        <Oval x={center.x - 150} y={center.y - 50} width={300} height={100} />
+        <Group transform={rotationTransform} origin={center}>
+          <Oval x={center.x - 150} y={center.y - 50} width={300} height={100} />
+        </Group>
+        <Group transform={rotationTransformSecond} origin={center}>
+          <Oval x={center.x - 150} y={center.y - 50} width={300} height={100} />
+        </Group>
+      </Group>
+    </Canvas>
   );
 }
