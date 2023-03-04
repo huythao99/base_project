@@ -5,6 +5,7 @@ import {
   interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
 } from 'react-native-reanimated';
 
@@ -16,7 +17,7 @@ export type ItemTypes = {
 const URL =
   'https://images.unsplash.com/photo-1474511320723-9a56873867b5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8YW5pbWFsfGVufDB8fDB8fA%3D%3D&w=1000&q=80';
 
-const ARRAY: ItemTypes[] = new Array(30).fill(0).map((_, index) => {
+const ARRAY = new Array(250).fill(0).map((_, index) => {
   return {
     id: `${index}`,
     value: index + 1,
@@ -25,19 +26,42 @@ const ARRAY: ItemTypes[] = new Array(30).fill(0).map((_, index) => {
 
 export default function useHome() {
   const scrollY = useSharedValue(0);
+  const currentScrollY = useSharedValue(0);
+  const velocity = useSharedValue(0);
+  const distance = useDerivedValue(() => {
+    return Math.max(0, scrollY.value - currentScrollY.value);
+  });
 
-  const onScroll = useAnimatedScrollHandler(event => {
-    scrollY.value = event.contentOffset.y;
+  const onScroll = useAnimatedScrollHandler({
+    onMomentumBegin: event => {
+      velocity.value = event.velocity?.y || 0;
+      if (event.velocity?.y > 0) {
+        if (distance.value > 0) {
+          currentScrollY.value = scrollY.value - 100;
+        }
+      } else {
+        if (distance.value === 0) {
+          currentScrollY.value = event.contentOffset.y;
+        }
+      }
+    },
+    onScroll: event => {
+      scrollY.value = event.contentOffset.y;
+    },
   });
 
   const styleImage = useAnimatedStyle(() => {
     return {
-      height: interpolate(
-        scrollY.value,
-        [0, 400],
-        [300, 150],
-        Extrapolation.CLAMP,
-      ),
+      transform: [
+        {
+          translateY: interpolate(
+            distance.value,
+            [0, 100],
+            [0, -150],
+            Extrapolation.CLAMP,
+          ),
+        },
+      ],
     };
   }, []);
 

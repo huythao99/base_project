@@ -15,7 +15,6 @@ export default function HomeScreen() {
       <FlatListAnimated
         onScroll={onScroll}
         data={ARRAY}
-        keyExtractor={(_, index) => index.toString()}
         renderItem={({item}) => {
           return (
             <View style={styles.itemContainer}>
@@ -25,7 +24,7 @@ export default function HomeScreen() {
         }}
         ListHeaderComponent={<View style={styles.blank} />}
       />
-      <ImageAnimated source={{uri: URL}} style={[styles.image, styleImage]} />
+      <ImageAnimated style={[styles.image, styleImage]} source={{uri: URL}} />
     </View>
   );
 }
