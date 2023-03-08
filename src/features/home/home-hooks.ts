@@ -1,52 +1,14 @@
-import {
-  useClockValue,
-  useComputedValue,
-  useValue,
-  useValueEffect,
-  interpolate,
-  Extrapolate,
-} from '@shopify/react-native-skia';
-import {Dimensions} from 'react-native';
-const WIDTH = Dimensions.get('window').width;
-const HEIGHT = Dimensions.get('window').height;
+import * as React from 'react';
+import {Easing, useSharedValue, withTiming} from 'react-native-reanimated';
 
 export default function useHome() {
-  const center = {x: WIDTH / 2, y: HEIGHT / 2};
+  const progress = useSharedValue(0);
 
-  const clock = useClockValue();
-  const rotation = useValue(0);
-  const logo = useValue(0);
-
-  const rotationTransform = useComputedValue(() => {
-    return [{rotate: rotation.current}, {scale: -1}];
-  }, [rotation]);
-
-  const rotationTransformSecond = useComputedValue(() => {
-    return [{rotate: -rotation.current}, {scale: -1}];
-  }, [rotation]);
-
-  const rotationTransformLogo = useComputedValue(() => {
-    return [{rotate: logo.current}];
-  }, [logo]);
-
-  useValueEffect(clock, () => {
-    rotation.current = interpolate(
-      clock.current,
-      [0, 1000],
-      [0, Math.PI / 3],
-      Extrapolate.CLAMP,
-    );
-    logo.current = interpolate(
-      clock.current,
-      [0, 1000, 2500],
-      [0, 0, Math.PI / 2],
-    );
-  });
+  React.useEffect(() => {
+    progress.value = withTiming(1, {duration: 4000, easing: Easing.linear});
+  }, []);
 
   return {
-    center,
-    rotationTransform,
-    rotationTransformSecond,
-    rotationTransformLogo,
+    progress,
   };
 }
