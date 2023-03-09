@@ -1,8 +1,8 @@
 import * as React from 'react';
 import Animated, {
-  SharedValue,
   useAnimatedProps,
   useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
 import {Path} from 'react-native-svg';
 
@@ -10,32 +10,27 @@ const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 interface Props {
   path: string;
-  progress: SharedValue<number>;
 }
 
 export default function AnimatedStroke(props: Props) {
-  const ref = React.useRef<typeof AnimatedPath | undefined>(undefined);
-  const [length, setLength] = React.useState(0);
+  const progress = useSharedValue(0);
 
   const pathProps = useAnimatedProps(() => {
     return {
-      strokeDashoffset: length - length * props.progress.value,
+      strokeDashoffset: 300 - 300 * progress.value,
     };
   });
 
+  React.useEffect(() => {
+    progress.value = withTiming(1, {duration: 3000});
+  }, [progress]);
+
   return (
     <AnimatedPath
-      onLayout={() => {
-        setLength(ref?.current?.getTotalLength() || 0);
-      }}
       animatedProps={pathProps}
-      ref={ref}
       d={props.path}
-      stroke="black"
       strokeWidth="2"
-      mask="url(#Path-1-outside-1_1_6)"
-      strokeDasharray={length}
-      //   strokeDashoffset={length - length * 0.9}
+      strokeDasharray={300}
     />
   );
 }

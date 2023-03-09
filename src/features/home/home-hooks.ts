@@ -1,14 +1,31 @@
 import * as React from 'react';
-import {Easing, useSharedValue, withTiming} from 'react-native-reanimated';
+import {
+  useAnimatedProps,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 export default function useHome() {
   const progress = useSharedValue(0);
 
   React.useEffect(() => {
-    progress.value = withTiming(1, {duration: 4000, easing: Easing.linear});
-  }, []);
+    progress.value = withTiming(1, {duration: 3000});
+  }, [progress]);
+
+  const animationPropsFirst = useAnimatedProps(() => {
+    return {
+      rotation: 60,
+    };
+  });
+
+  const animationPropsSecond = useAnimatedProps(() => {
+    return {
+      rotation: progress.value * 120,
+    };
+  });
 
   return {
-    progress,
+    animationPropsFirst,
+    animationPropsSecond,
   };
 }
